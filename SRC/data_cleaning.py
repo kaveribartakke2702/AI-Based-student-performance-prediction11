@@ -14,6 +14,6 @@ print(data.isnull().sum())
 data = data.drop_duplicates()
 
 # Save cleaned dataset
-data.to_csv("../data/student_cleaned_data.csv", index=False)
+data.to_csv("../data/processed/student_cleaned_data.csv", index=False)
 
 print("Data cleaning completed successfully")
