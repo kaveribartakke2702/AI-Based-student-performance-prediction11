@@ -1,4 +1,4 @@
-function predictPerformance() {
+async function predictPerformance() {
     const name = document.getElementById("studentName").value;
     const studyHours = Number(document.getElementById("studyHours").value);
     const attendance = Number(document.getElementById("attendance").value);
@@ -7,29 +7,31 @@ function predictPerformance() {
     const loading = document.getElementById("loading");
     const result = document.getElementById("result");
 
-    loading.innerHTML = "Predicting performance...";
+    loading.innerHTML = "Sending request to backend...";
     result.innerHTML = "";
 
-    setTimeout(function () {
-        const averageScore = (studyHours * 10 + attendance + previousScore) / 3;
+    try {
+        const response = await fetch("http://127.0.0.1:5000/api/predict", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                student_name: name,
+                study_hours: studyHours,
+                attendance: attendance,
+                previous_score: previousScore
+            })
+        });
 
-        let prediction = "";
-
-        if (averageScore >= 75) {
-            prediction = "Good Performance";
-            result.style.backgroundColor = "#d4edda";
-            result.style.color = "#155724";
-        } else if (averageScore >= 50) {
-            prediction = "Average Performance";
-            result.style.backgroundColor = "#fff3cd";
-            result.style.color = "#856404";
-        } else {
-            prediction = "Poor Performance";
-            result.style.backgroundColor = "#f8d7da";
-            result.style.color = "#721c24";
-        }
+        const data = await response.json();
 
         loading.innerHTML = "";
-        result.innerHTML = name + "'s Predicted Result: " + prediction;
-    }, 1000);
+        result.innerHTML = name + "'s Predicted Result: " + data.prediction +
+            " | Final Score: " + data.final_score;
+
+    } catch (error) {
+        loading.innerHTML = "";
+        result.innerHTML = "Backend connection failed. Please run Flask server first.";
+    }
 }
